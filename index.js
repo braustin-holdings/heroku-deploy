@@ -94,7 +94,7 @@ const deploy = ({
       execSync("heroku repo:reset -a " + app_name);
     }
     let git_config = execSync(
-        "cat ~/.git/config"
+        "git ls-remote heroku"
       )
         .toString()
         .trim();
