@@ -93,12 +93,7 @@ const deploy = ({
       execSync("heroku plugins:install heroku-repo");
       execSync("heroku repo:reset -a " + app_name);
     }
-    let git_config = execSync(
-        "git ls-remote heroku"
-      )
-        .toString()
-        .trim();
-    console.log("git config", git_config)
+
     if (appdir === "") {
       console.log("Heroku Command:",`git push heroku ${branch}:${remote_branch} ${force}`)
       execSync(`git push heroku ${branch}:${remote_branch} ${force}`, {
