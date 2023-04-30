@@ -4,7 +4,6 @@ const { execSync } = require("child_process");
 const fs = require("fs");
 const path = require("path");
 
-const LAST_SUCCESSFUL_DEPLOY_RELEASE_CONFIG = "LAST_SUCCESSFUL_DEPLOY_RELEASE";
 // Support Functions
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -115,33 +114,17 @@ const healthcheckFailed = ({
                              appdir
                            }) => {
   if (rollbackonhealthcheckfailed) {
-
-    const lastGoodRelease = execSync(`heroku config:get --app=${app_name} ${LAST_SUCCESSFUL_DEPLOY_RELEASE_CONFIG}`).toString().trim();
-
     execSync(
-      `heroku rollback --app ${app_name} ${lastGoodRelease}`,
+      `heroku rollback --app ${app_name}`,
       appdir ? { cwd: appdir } : null
     );
     core.setFailed(
-      `Health Check Failed. Error deploying Server. Deployment has been rolled back ${lastGoodRelease}. Please check your logs on Heroku to try and diagnose the problem`
+      "Health Check Failed. Error deploying Server. Deployment has been rolled back. Please check your logs on Heroku to try and diagnose the problem"
     );
   } else {
     core.setFailed(
       "Health Check Failed. Error deploying Server. Please check your logs on Heroku to try and diagnose the problem"
     );
-  }
-};
-
-const healthcheckSucceeded = ({
-                                rollbackonhealthcheckfailed,
-                                app_name
-                              }) => {
-  if (rollbackonhealthcheckfailed) {
-    const currentVersion = execSync("heroku releases -n 1  --app=${app_name} | awk '/Current: (v[0-9]*)/{ print $6}'").toString().trim();
-    execSync(`heroku config:set --app=${app_name} ${LAST_SUCCESSFUL_DEPLOY_RELEASE_CONFIG}='${currentVersion}'`);
-
-    console.log("Setting Last Successful Release", currentVersion);
-
   }
 };
 
@@ -266,7 +249,6 @@ if (heroku.dockerBuildArgs) {
         if (heroku.checkstring && heroku.checkstring !== res.body.toString()) {
           throw new Error("Failed to match the checkstring");
         }
-        healthcheckSucceeded(heroku);
         console.log(res.body.toString());
       } catch (err) {
         console.log(err.message);
