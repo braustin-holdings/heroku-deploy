@@ -138,10 +138,14 @@ const healthcheckSucceeded = ({
                               }) => {
   if (rollbackonhealthcheckfailed) {
     const currentVersionLine = execSync(`heroku releases -n 1  --app=${app_name} | grep 'Current:'`).toString().trim();
-    const currentVersion = currentVersionLine.match("Current: (v[0-9]+)")[1];
-    execSync(`heroku config:set --app=${app_name} ${LAST_SUCCESSFUL_DEPLOY_RELEASE_CONFIG}='${currentVersion}'`);
+    const currentVersion = parseInt(currentVersionLine.match("Current: v([0-9]+)")[1]);
+    //If this change will create a new version
+    //If you don't set it as the rollback then the value will be lost
+    // You will rollback more than you intend to.
+    const nextVersion = `v${currentVersion + 1}`;
+    execSync(`heroku config:set --app=${app_name} ${LAST_SUCCESSFUL_DEPLOY_RELEASE_CONFIG}='${nextVersion}'`);
 
-    console.log("Setting Last Successful Release:", currentVersion);
+    console.log("Setting Last Successful Release:", nextVersion);
 
   }
 };
