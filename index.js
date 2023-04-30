@@ -137,10 +137,11 @@ const healthcheckSucceeded = ({
                                 app_name
                               }) => {
   if (rollbackonhealthcheckfailed) {
-    const currentVersion = execSync("heroku releases -n 1  --app=${app_name} | awk '/Current: (v[0-9]*)/{ print $6}'").toString().trim();
+    const currentVersionLine = execSync("heroku releases -n 1  --app=${app_name} | grep 'Current:'").toString().trim();
+    const currentVersion = currentVersionLine.match("Current: (v[0-9]+)")[1];
     execSync(`heroku config:set --app=${app_name} ${LAST_SUCCESSFUL_DEPLOY_RELEASE_CONFIG}='${currentVersion}'`);
 
-    console.log("Setting Last Successful Release", currentVersion);
+    console.log("Setting Last Successful Release:", currentVersion);
 
   }
 };
