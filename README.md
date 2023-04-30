@@ -441,6 +441,18 @@ By default, the application will not be rolled back if the healthcheck fails.
 
 Thanks to [FridaTveit](https://github.com/FridaTveit) for adding this feature
 
+
+There is a small issue with the rollback logic. It rolls back the last release before the one you just pushed. If you
+try to roll two releases that are bad instead of going back to the last know good, it will go to the first bad release you rolled out.
+
+This code has an improvement where you can add a config value to track that last successful deploy.
+
+LAST_SUCCESSFUL_DEPLOY_RELEASE
+
+This will automatically be created/updated if you turn on rollbackonhealthcheckfailed.
+
+This will handle going back to the last known good - or just back one if there is no variable set.
+
 ## Environment Variables
 
 Heroku offers a means of passing sensitive information to your app (such as api keys etc) via something it calls **config vars** which you can find in the settings of your heroku app. But sometimes you might want to store sensitive information (api keys etc) in GitHub Secrets instead just to ensure platform independence. If you choose to this, you can then pass those secrets to your heroku app by using the "env" object of the action:-
